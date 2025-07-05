@@ -244,7 +244,8 @@ return (usdAmountInWei * PRECISION) / (uint256(price) * ADDITIONAL_FEED_PRECISIO
 So Chainlink returns 8 decimals and an additional precision is required to make it `value * 1e8 *1e10`  
 
 
-```price = 2000 * 1e8 = 200000000000  // ETH price in 8 decimals
+```sol
+price = 2000 * 1e8 = 200000000000  // ETH price in 8 decimals
 
 // Convert to 18-decimal precision by multiplying by 1e10
 priceAdjusted = price * 1e10 = 200000000000 * 1e10 = 2000e18

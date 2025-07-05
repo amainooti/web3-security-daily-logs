@@ -16,7 +16,7 @@
 | Contract                    | Reviewed? | Notes                |
 | --------------------------- | --------- | -------------------- |
 | DSCEngine.sol               | ✅         | See `DSC-engine.sol` |
-| DecentralizedStableCoin.sol | 🔄        |                      |
+| DecentralizedStableCoin.sol | ✅         |                      |
 | OracleLib.sol               | ✅         |                      |
 
 ## 🔖 Tags

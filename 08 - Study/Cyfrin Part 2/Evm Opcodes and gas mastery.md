@@ -148,6 +148,43 @@ Want to check the hex back to decimal?
 - You can use `cast` to get hex for the shift value: `cast to-hex 224 → 0xe0`
 
 
+# 2025-07-03
+
+### Steps in creating a function dispatcher
+```
+#define macro MAIN() = takes(0) returns(0) {
+    // Step 1: Load selector from calldata
+    // -----------------------------------
+    0x00                // PUSH1 0x00 → stack: [0x00]
+    calldataload        // → stack: [0xe026c017000...0001] (32 bytes)
+    0xe0                // PUSH1 0xe0 → stack: [0xe0, full_calldata]
+    shr                 // shift right 224 bits → stack: [0xe026c017] ✅
+
+    // Step 2: Compare to first selector (updateHorseNumber)
+    // ------------------------------------------------------
+    dup1                // DUP1 → copy selector → stack: [0xe026c017, 0xe026c017]
+    0xcdfead2e          // PUSH4 0xcdfead2e → stack: [0xcdfead2e, 0xe026c017, 0xe026c017]
+    eq                  // EQ pops top 2 → compares → false (0) → stack: [0, 0xe026c017]
+    updateJump          // PUSH2 <addr> → stack: [updateJump, 0, 0xe026c017]
+    jumpi               // JUMPI pops top 2 → condition = 0, doesn't jump → stack: [0xe026c017]
+
+    // Step 3: Compare to second selector (readNumberOfHorses)
+    // --------------------------------------------------------
+    dup1                // DUP1 → stack: [0xe026c017, 0xe026c017]
+    0xe026c017          // PUSH4 0xe026c017 → stack: [0xe026c017, 0xe026c017, 0xe026c017]
+    eq                  // EQ pops top 2 → compares → true (1) → stack: [1, 0xe026c017]
+    readJump            // PUSH2 <addr> → stack: [readJump, 1, 0xe026c017]
+    jumpi               // JUMPI pops top 2 → condition = 1, jumps to readJump → stack: [0xe026c017]
+
+    // Step 4: At jump destination (readJump:)
+    // ----------------------------------------
+    readJump:
+        pop             // Remove selector from stack → stack: []
+        READ_NUMBER_OF_HORSES()
+}
+
+```
+
 ## Takeaways
 
 1. Operations are done in the stack and then sent to either memory or storage 
