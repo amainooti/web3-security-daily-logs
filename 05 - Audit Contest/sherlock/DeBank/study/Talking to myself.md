@@ -204,3 +204,24 @@ Key interaction
     │     └── ...
     └── Each swapType maps to a corresponding:
          [DEXExecutor.sol] via inheritance
+
+
+
+
+
+
+
+
+`forge test -f rpc_url --fork-block-number 22821947 -vvv --no-match-contract "XDaiAdapterTest|VelodromeExecutorTest"`
+
+
+
+We will remove the previous statement and update the list of all the known issues or acceptable risks as follows: 
+**Issue 1:** 
+In the Executor contracts, before performing an external token swap operation, the forceApprove function is called to authorize the external router contract to spend tokens. However, it does not check whether the incoming fromToken parameter is ETH. If fromToken is ETH, calling forceApprove directly will cause an error and revert, thus preventing the swap from executing properly. → We acknowledge this, but ETH swaps are handled in WethExecutor.sol. 
+**Issue 2:** 
+The feeRate parameter in the swap function can be set arbitrarily. As long as it is below the maxFeeRate, it will be accepted. This allows users to set the fee to a very low value (even zero), which could significantly reduce protocol revenue. → We acknowledge this, but we do not consider it a valid issue. 
+**Issue 3:** 
+In the Router contract, whenever the swap function is called, a portion of the handling fee is transferred to the feeReceiver address. Normally, this should be the protocol’s official address. However, the function does not enforce any check on the feeReceiver, meaning users can supply any address, potentially redirecting fees to themselves. → We acknowledge this. 
+**Issue 4:**
+In the Admin contract, there are three administrators who can call pause and unpause. Each call to pause increments pauseCount. However, unpause only works when pauseCount is less than 2. If two admins call pause independently (either due to miscommunication or key compromise), the contract becomes permanently paused and unusable. → We acknowledge this.
